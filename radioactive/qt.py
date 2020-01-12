@@ -50,12 +50,27 @@ def connect_line_edit(editor, model, key):
     connect_property(editor, 'text', model, key)
 
 
-def connect_spinbox(spin, model, key):
-    def update_model(t):
-        model[key] = t
+def connect_spin_box(spin, model, key):
+    def update_model(number):
+        model[key] = number
     adapter = float if isinstance(spin, Qt().QDoubleSpinBox) else int
     spin.valueChanged.connect(update_model)
     connect_property(spin, 'value', model, key, adapter=adapter)
+
+
+def connect_combo_box(combo, model, key):
+    def update_model(index):
+        model[key] = index
+    combo.currentIndexChanged[int].connect(update_model)
+    connect_property(combo, 'currentIndex', model, key, adapter=int)
+
+
+def connect_combo_box_items(combo, model, key):
+    def update_combo(model, key, value):
+        combo.clear()
+        combo.addItems(value)
+    model.connect(key, update_combo, weak=False)
+    update_combo(model, key, model[key])
 
 
 def connect(widget, model, key):
@@ -66,4 +81,6 @@ def connect(widget, model, key):
         conn = connect_line_edit
     elif isinstance(widget, qt.QSpinBox):
         conn = connect_spin_box
+    elif isinstance(widget, qt.QComboBox):
+        conn = connect_combo_box
     return conn(widget, model, key)
