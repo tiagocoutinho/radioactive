@@ -4,13 +4,16 @@ from radioactive import qt
 
 
 def demo():
-    data = dict(name='Hello!', version='1.2.3', count='1')
+    data = dict(name='Hello!', version='1.2.3', count='1', fg='blue')
     state = Dict(data)
     state['title'] = f'{state["name"]} - {state["version"]}'
     def title(model, key, value):
         model['title'] = f'{model["name"]} - {model["version"]}'
+    def fg_style(model, key, value):
+        model['fg_style'] = f'color: {value}'
     state.connect('name', title)
     state.connect('version', title)
+    state.connect('fg', fg_style)
 
     app = Qt.QApplication([])
     w = Qt.QWidget()
@@ -32,7 +35,17 @@ def demo():
     qt.connect(labelCount, state, 'count')
     qt.connect(spinCount, state, 'count')
 
-    for i in range(2, 4):
+    labelFg = Qt.QLabel()
+    editFg = Qt.QLineEdit()
+    layout.addWidget(Qt.QLabel('Fg:'), 2, 0)
+    layout.addWidget(editFg, 2, 1)
+    layout.addWidget(labelFg, 2, 2)
+    qt.connect(labelFg, state, 'fg')
+    qt.connect(editFg, state, 'fg')
+    qt.connect_property(labelFg, 'styleSheet', state, 'fg_style')
+    qt.connect_property(editFg, 'styleSheet', state, 'fg_style')
+
+    for i in range(3, 5):
         labelVersion = Qt.QLabel()
         editorVersion = Qt.QLineEdit()
         layout.addWidget(Qt.QLabel('Version:'), i, 0)
