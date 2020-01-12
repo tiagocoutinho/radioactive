@@ -39,9 +39,13 @@ def connect_property(qobject, prop, model, key, adapter=str):
     update(model, key, model[key])
 
 
-def connect_lineedit(editor, model, key):
-    def update_model(t):
-        model[key] = t
+def connect_label(label, model, key):
+    connect_property(label, 'text', model, key)
+
+
+def connect_line_edit(editor, model, key):
+    def update_model(text):
+        model[key] = text
     editor.textChanged.connect(update_model)
     connect_property(editor, 'text', model, key)
 
@@ -57,8 +61,9 @@ def connect_spinbox(spin, model, key):
 def connect(widget, model, key):
     qt = Qt()
     if isinstance(widget, qt.QLabel):
-        return connect_property(widget, 'text', model, key)
+        conn = connect_label
     elif isinstance(widget, qt.QLineEdit):
-        return connect_lineedit(widget, model, key)
+        conn = connect_line_edit
     elif isinstance(widget, qt.QSpinBox):
-        return connect_spinbox(widget, model, key)
+        conn = connect_spin_box
+    return conn(widget, model, key)
