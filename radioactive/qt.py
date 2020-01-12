@@ -1,11 +1,32 @@
+import sys
+
 
 QT = None
+QT_LIST = ['PyQt5', 'PySide2', 'PyQt4', 'PySide']
+
+
+def __import_qt():
+    for qt in QT_LIST:
+        try:
+            return __import__(qt)
+        except ModuleNotFoundError:
+            continue
+
+
+def __get_qt():
+    for qt in QT_LIST:
+        mod = sys.modules.get(qt)
+        if mod is not None:
+            return mod
+    else:
+        return __import_qt()
+
+
 def Qt():
     global QT
     if QT is None:
         import sys
-        get = sys.modules.get
-        qt = get('PyQt5', get('PySide2', get('PyQt4', get('PySide'))))
+        qt = __get_qt()
         name = qt.__name__
         QT = __import__(f'{name}.Qt', fromlist=(name,))
     return QT
